@@ -61,12 +61,64 @@ const TicketModal = () => {
       body: JSON.stringify(ticket),
     });
     const ticketId = await res.json();
-    console.log("data:", data);
+    console.log("ticketId:", ticketId);
+    const tasksToFetch = tasks.map(({ local_id, ...rest }) => ({
+      ...rest,
+      ticket_id: ticketId,
+    }));
+
+    console.log("tasksToFetch:", tasksToFetch);
+    submitTask(tasksToFetch);
     // window.location.reload();
   };
 
-  const addTask = (task = {}) => {
-    setTaskToEdit(task);
+  const submitTask = (tasks) => {
+    tasks.forEach(async (t) => {
+      try {
+        await fetch("/api/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(t),
+        });
+      } catch (error) {
+        console.log("error:", error);
+      }
+    });
+  };
+
+  const addTask = () => {
+    const local_id = tasks.length;
+
+    const newTask = {
+      title: "New Task",
+      description: "",
+      owner: "",
+      status: "new",
+      ticket_id: null,
+      local_id,
+    };
+    setTasks((prev) => [...prev, newTask]);
+  };
+
+  const editTask = (id) => {
+    console.log("id:", id);
+    console.log("editTask");
+    console.log("tasks[id]:", tasks[id]);
+    setTaskToEdit(tasks[id]);
+  };
+
+  const updateTask = (e, updatedTask) => {
+    e.preventDefault();
+    console.log("updateTask:", updatedTask);
+
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => {
+        if (task.local_id === updatedTask.local_id) {
+          return { ...task, ...updatedTask }; // This merges the updated fields with the existing task
+        }
+        return task; // Return unmodified task for those that do not match the condition
+      })
+    );
   };
 
   return (
@@ -118,9 +170,22 @@ const TicketModal = () => {
       </form>
       <div className="task-container">
         <button onClick={() => addTask()}>Add Task</button>
-        {tasks && tasks.map((task) => <div>{task.title}</div>)}
+        {tasks &&
+          tasks.map((task, index) => (
+            <div
+              key={index}
+              onClick={() => {
+                editTask(index);
+              }}
+            >
+              {task.title}
+            </div>
+          ))}
       </div>
-      {taskToEdit && <TaskModal taskToEdit={taskToEdit} />}
+      {JSON.stringify(taskToEdit)}
+      {taskToEdit && (
+        <TaskModal updateTask={updateTask} taskToEdit={taskToEdit} />
+      )}
     </div>
   );
 };

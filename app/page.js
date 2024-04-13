@@ -7,23 +7,23 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   // const { data, error } = await supabase.from("Tasks").select();
-  const { data, error } = await supabase.from("Tickets").select();
-  //   .select(`
-  //   title,
-  //   description,
-  //   owner,
-  //   due_date,
-  //   status,
-  //   priority,
-  //   tasks:Tasks!inner(title, description, owner, status)
-  // `);
+  const { data, error } = await supabase.from("Tickets") //.select();
+    .select(`
+    title,
+    description,
+    owner,
+    due_date,
+    status,
+    priority,
+    tasks:Tasks!inner(title, description, owner, status)
+  `);
 
   // console.log("data1:", data);
 
   return (
     <div>
       <h2>Task App</h2>
-      <TicketModal />
+      {/* <TicketModal /> */}
       {/* <PostTicket /> */}
       {/* <br /> */}
       {/* <br /> */}

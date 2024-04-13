@@ -4,6 +4,7 @@
 
 @import url(./styles/ticket-modal.css);
 @import url(./styles/task-modal.css);
+@import url(./styles/ticket-item.css);
 
 body{
   background-color: rgb(24, 156, 156);

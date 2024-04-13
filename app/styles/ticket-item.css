@@ -1,0 +1,6 @@
+.ticket-item{
+  border: 1px solid white;
+  margin: 10px;
+  display: flex;
+  gap: 20px;
+}

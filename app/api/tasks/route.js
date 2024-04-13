@@ -9,14 +9,18 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  // console.log("POST TICKET");
-  const ticket = await request.json();
+  console.log("POST TASK");
+  const task = await request.json();
+  console.log("task:", task);
+  // console.log("tasks:", tasks);
+  // console.log("tasks:", tasks);
   // console.log("ticket print:", ticket);
-  const res = await supabase.from("Tickets").insert([ticket]).select();
-  // console.log("res:", res);
-  const tickedId = res.data[0].id;
-  revalidatePath("/");
-  return NextResponse.json(tickedId);
+  const res = await supabase.from("Tasks").insert([task]).select();
+  console.log("res:", res);
+  return NextResponse.json("Success");
+  // const tickedId = res.data[0].id;
+  // revalidatePath("/");
+  // return NextResponse.json(tickedId);
 
   // const { data, error } = await supabase
   // .from("Tickets")

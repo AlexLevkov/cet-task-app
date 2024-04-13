@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-const TaskModal = ({ taskToEdit }) => {
+const TaskModal = ({ taskToEdit, updateTask }) => {
   const [task, setTask] = useState({
     title: "",
     description: "",
@@ -13,10 +13,14 @@ const TaskModal = ({ taskToEdit }) => {
     setTask(taskToEdit);
   }, []);
 
+  useEffect(() => {
+    setTask(taskToEdit);
+    console.log("taskToEdit:", taskToEdit);
+  }, [taskToEdit]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask({ ...task, [name]: value });
-    taskToEdit(task);
   };
 
   const submitTask = async (e) => {
@@ -54,7 +58,9 @@ const TaskModal = ({ taskToEdit }) => {
           <option value="in progress">In Progress</option>
           <option value="done">Done</option>
         </select>
-        <button type="submit">Submit Task</button>
+        <button type="submit" onClick={(e) => updateTask(e, task)}>
+          Submit Task
+        </button>
       </form>
     </div>
   );
