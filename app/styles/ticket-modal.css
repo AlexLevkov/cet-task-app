@@ -1,0 +1,18 @@
+.ticket-modal{
+  border: 1px solid white;
+
+}
+
+.ticket-modal-form{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.task-container{
+  border: 1px dashed white;
+  display: flex;
+  gap: 10px;
+  padding: 20px;
+}
