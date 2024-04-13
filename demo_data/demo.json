@@ -1,0 +1,38 @@
+{
+  "title": "First Ticket",
+  "description": "Build in supa",
+  "owner": "Alex",
+  "due_date": "2024-04-12T07:00:00+00:00",
+  "status": "Doing",
+  "priority": "High",
+  "tasks": [
+    {
+      "id": "1",
+      "owner": null,
+      "title": "task 1 for ticket 1",
+      "status": "backlog",
+      "description": null
+    },
+    {
+      "id": "2",
+      "owner": null,
+      "title": "task 2 for ticket 1",
+      "status": "todo",
+      "description": null
+    },
+    {
+      "id": "3",
+      "owner": null,
+      "title": "task 3 for ticket 1",
+      "status": "doing",
+      "description": null
+    },
+    {
+      "id": "4",
+      "owner": null,
+      "title": "task 4 for ticket 1",
+      "status": "done",
+      "description": null
+    }
+  ]
+}

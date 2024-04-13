@@ -2,6 +2,7 @@ import { supabase } from "@/utils/supabaseClient";
 import TicketList from "./components/TicketList";
 import PostTicket from "./components/PostTicket";
 import TicketModal from "./components/TicketModal";
+import List from "./components/List";
 // const { data, error } = await supabase.from("Tickets").select("*");
 export const dynamic = "force-dynamic";
 
@@ -15,10 +16,11 @@ export default async function Home() {
     due_date,
     status,
     priority,
-    tasks:Tasks!inner(title, description, owner, status)
+    id,
+    tasks:Tasks!inner(title, description, owner, status,id)
   `);
 
-  // console.log("data1:", data);
+  console.log("data1:", data);
 
   return (
     <div>
@@ -27,7 +29,14 @@ export default async function Home() {
       {/* <PostTicket /> */}
       {/* <br /> */}
       {/* <br /> */}
-      <TicketList data={data} />
+      {data.map((t, index) => {
+        return <List key={t.id} ticketData={t} />;
+      })}
+      {/* <List />
+      {data &&
+        data.map((t) => {
+          <List ticket={t} />;
+        })} */}
     </div>
   );
 }

@@ -15,7 +15,7 @@ export async function POST(request) {
   // console.log("tasks:", tasks);
   // console.log("tasks:", tasks);
   // console.log("ticket print:", ticket);
-  const res = await supabase.from("Tasks").insert([task]).select();
+  const res = await supabase.from("Tasks").insert([task]);
   console.log("res:", res);
   return NextResponse.json("Success");
   // const tickedId = res.data[0].id;
