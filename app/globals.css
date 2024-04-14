@@ -2,20 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url(./styles/ticket-modal.css);
-@import url(./styles/task-modal.css);
-@import url(./styles/ticket-item.css);
+
 
 body{
-  background-color: rgb(24, 156, 156);
+  background-color: #171717;
+  color: white !important;
 }
 
 button{
-  border:1px solid white;
   margin: 5px;
   padding: 5px;
 }
 
-.task-title{
-  color: orangered;
+.btn-container{
+  display: flex;
+  justify-content: end;
+}
+
+.ticket-modal-form{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.task-container{
+  display: flex;
+  gap: 10px;
+  padding: 20px;
+}
+
+.task-modal{
+  color: white;
+}
+
+.task-modal input,textarea,select{
+  color:white!important;
+  padding: 15px;
+}
+
+.modal{
+  background-color: rgb(33, 39, 42)
+}
+
+label{
+  color: white!important;
+} 
+
+.ticket-item{
+  border: 1px solid white;
+  margin: 10px;
+  display: flex;
+  gap: 20px;
 }

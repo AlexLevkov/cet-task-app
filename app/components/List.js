@@ -5,11 +5,12 @@ import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
 import data from "@/demo_data/demo.json";
 import Modal from "@/app/components/Modal";
-import { updateItem } from "@/app/storae-service/storage";
+import { updateItem, deleteItem } from "@/app/storae-service/storage";
 
 export const CustomKanban = (ticketData) => {
   // console.log("ticket:", ticketData);
   // console.log("data:", data);
+
   return (
     <div className="w-full bg-neutral-900 text-neutral-50">
       {/* <h1>List</h1> */}
@@ -19,7 +20,7 @@ export const CustomKanban = (ticketData) => {
 };
 
 const Board = ({ ticketData }) => {
-  console.log("ticketData:", ticketData.ticketData);
+  // console.log("ticketData:", ticketData.ticketData);
   // console.log("DEFAULT_CARDS:", DEFAULT_CARDS);
   // // console.log("DEFAULT_TICKET:", DEFAULT_TICKET);
   ticketData.ticketData.tasks = ticketData.ticketData.tasks.map((task) => ({
@@ -33,27 +34,52 @@ const Board = ({ ticketData }) => {
   const [hasChecked, setHasChecked] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isTicket, setIsTicket] = useState(false);
   const [modalIndex, setModalIndex] = useState("");
+  const [modalDb, setModalDb] = useState("");
 
   useEffect(() => {
-    console.log("cards changed");
-    console.log("cards:", cards);
-    cards.forEach((card) => updateItem(card, "Tasks"));
+    // console.log("cards changed");
+    // console.log("cards:", cards);
+    const areAllDone = cards.every((card) => card.status === "done");
+    // console.log(areAllDone);
+    if (areAllDone) {
+      // console.log("ticket.ticket.id:", ticket);/
+      setTicket((pv) => ({
+        ...pv,
+        status: "done",
+      }));
+      updateItem(ticket, "tickets");
+    } else {
+      // console.log("ticket.ticket.id:", ticket);
+      setTicket((pv) => ({
+        ...pv,
+        status: "approved",
+      }));
+      updateItem(ticket, "tickets");
+    }
+
+    cards.forEach((card) => updateItem(card, "tasks"));
   }, [cards]);
 
-  const toggleModal = (index) => {
-    console.log("index:", index);
+  const toggleModal = (index, db, isTicket, ticket) => {
+    // console.log("index:", index);
+    setIsTicket((pv) => isTicket);
     setModalIndex((pv) => index);
     setIsOpen(!isOpen);
   };
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={toggleModal} index={modalIndex} />
-      <div
-        style={{ border: "1px solid white" }}
-        className="flex w-full gap-3 p-12"
-      >
+      <Modal
+        ticket={ticket}
+        isOpen={isOpen}
+        isTicket={isTicket}
+        onClose={toggleModal}
+        index={modalIndex}
+        db="tasks"
+      />
+      <div className="flex justify-center w-full gap-3 p-12 border-t border-gray-300">
         <TicketColumn
           title="Ticket"
           ticket={ticket}
@@ -61,6 +87,7 @@ const Board = ({ ticketData }) => {
           headingColor="text-neutral-500"
           cards={cards}
           setCards={setCards}
+          toggleModal={toggleModal}
         />
         {/* <Status
           title="Backlog"
@@ -76,6 +103,7 @@ const Board = ({ ticketData }) => {
           cards={cards}
           setCards={setCards}
           toggleModal={toggleModal}
+          ticketData={ticketData}
         />
         <Status
           title="In progress"
@@ -84,6 +112,7 @@ const Board = ({ ticketData }) => {
           cards={cards}
           setCards={setCards}
           toggleModal={toggleModal}
+          ticketData={ticketData}
         />
         <Status
           title="Done"
@@ -92,6 +121,7 @@ const Board = ({ ticketData }) => {
           cards={cards}
           setCards={setCards}
           toggleModal={toggleModal}
+          ticketData={ticketData}
         />
         <BurnBarrel setCards={setCards} />
       </div>
@@ -112,6 +142,7 @@ const Status = ({
   status,
   setCards,
   toggleModal,
+  ticketData,
 }) => {
   const [active, setActive] = useState(false);
 
@@ -241,20 +272,21 @@ const Status = ({
           );
         })}
         <DropIndicator beforeId={null} status={status} />
-        {/* <AddCard status={status} setCards={setCards} /> */}
+        <AddCard status={status} setCards={setCards} ticketData={ticketData} />
       </div>
     </div>
   );
 };
 
-const TicketColumn = ({ title, headingColor, ticket }) => {
+const TicketColumn = ({ title, headingColor, ticket, toggleModal }) => {
   return (
     <div className="w-56 shrink-0">
       <div className="mb-3 flex items-center justify-between">
         <h3
-          className={`font-medium ${headingColor}`}
+          className={`font-medium ${headingColor} cursor-pointer`}
           onClick={() => {
-            alert("Ticket");
+            // console.log("ticket:", ticket);
+            toggleModal(ticket.id, "tickets", true, ticket);
           }}
         >
           {title}
@@ -269,7 +301,14 @@ const TicketColumn = ({ title, headingColor, ticket }) => {
   );
 };
 
-const Card = ({ title, id, status, handleDragStart, toggleModal }) => {
+const Card = ({
+  title,
+  id,
+  status,
+  handleDragStart,
+  toggleModal,
+  ticketData,
+}) => {
   return (
     <>
       <DropIndicator beforeId={id} status={status} />
@@ -283,8 +322,8 @@ const Card = ({ title, id, status, handleDragStart, toggleModal }) => {
         <p
           className="text-sm text-neutral-100"
           onDoubleClick={() => {
-            console.log("id:", id);
-            toggleModal(id);
+            // console.log("id:", id);
+            toggleModal(id, "tasks");
           }}
         >
           {title}
@@ -319,6 +358,9 @@ const BurnBarrel = ({ setCards }) => {
   const handleDragEnd = (e) => {
     const cardId = e.dataTransfer.getData("cardId");
 
+    // deleteTask
+    deleteItem(cardId, "tasks");
+
     setCards((pv) => pv.filter((c) => c.id !== cardId));
 
     setActive(false);
@@ -329,7 +371,7 @@ const BurnBarrel = ({ setCards }) => {
       onDrop={handleDragEnd}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
-      className={`mt-10 grid h-56 w-56 shrink-0 place-content-center rounded border text-3xl ${
+      className={`mt-10 grid w-56 shrink-0 place-content-center rounded border text-3xl ${
         active
           ? "border-red-800 bg-red-800/20 text-red-500"
           : "border-neutral-500 bg-neutral-500/20 text-neutral-500"
@@ -340,7 +382,7 @@ const BurnBarrel = ({ setCards }) => {
   );
 };
 
-const AddCard = ({ status, setCards }) => {
+const AddCard = ({ status, setCards, ticketData }) => {
   const [text, setText] = useState("");
   const [adding, setAdding] = useState(false);
 
@@ -352,12 +394,21 @@ const AddCard = ({ status, setCards }) => {
     const newCard = {
       status,
       title: text.trim(),
-      id: Math.random().toString(),
+      // id: Math.random().toString(),
+      ticket_id: ticketData.ticketData.id,
     };
+
+    fetch("/api/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newCard),
+    });
 
     setCards((pv) => [...pv, newCard]);
 
     setAdding(false);
+
+    window.location.reload();
   };
 
   return (
@@ -392,7 +443,7 @@ const AddCard = ({ status, setCards }) => {
           onClick={() => setAdding(true)}
           className="flex w-full items-center gap-1.5 px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:text-neutral-50"
         >
-          <span>Add card</span>
+          <span>Add Task</span>
           <FiPlus />
         </motion.button>
       )}

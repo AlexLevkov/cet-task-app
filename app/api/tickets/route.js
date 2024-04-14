@@ -1,3 +1,5 @@
+// TICKET TABLE
+
 import { NextResponse } from "next/server";
 import { supabase } from "@/utils/supabaseClient";
 import { revalidatePath } from "next/cache";
@@ -24,20 +26,14 @@ export async function POST(request) {
   // .select();
 }
 
-// export default async function handler(req, res) {
-//   if (req.method === "GET") {
-//     console.log("GET");
-//     // Extract ticket data from request body
-//     // const ticketData = req.body;
-
-//     // Insert ticket data into the database (pseudo-code)
-//     const { data, error } = await insertTicketIntoDatabase(ticketData);
-
-//     // Handle response
-//     if (error) {
-//       return res.status(500).json({ error });
-//     }
-//     return res.status(200).json(data);
-//   }
-//   // Handle other HTTP methods if necessary
-// }
+export async function PUT(request) {
+  console.log("PUT in API");
+  const ticket = await request.json();
+  const { data, error } = await supabase
+    .from("Tickets")
+    .update(ticket)
+    .match({ id: ticket.id });
+  console.log("data:", data);
+  console.log("error:", error);
+  return NextResponse.json("Success");
+}

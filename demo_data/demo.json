@@ -8,10 +8,10 @@
   "tasks": [
     {
       "id": "1",
-      "owner": null,
+      "owner": "owner",
       "title": "task 1 for ticket 1",
       "status": "backlog",
-      "description": null
+      "description": "description"
     },
     {
       "id": "2",
@@ -36,3 +36,5 @@
     }
   ]
 }
+
+
