@@ -24,8 +24,8 @@ export default function Home() {
   return (
     <div>
       <h2>Task App</h2>
-      {tickets.map((t) => {
-        return <div>{t.title}</div>;
+      {tickets.map((t, index) => {
+        return <div key={index}>{t.title}</div>;
       })}
     </div>
   );

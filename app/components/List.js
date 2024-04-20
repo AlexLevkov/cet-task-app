@@ -23,10 +23,11 @@ const Board = ({ ticketData }) => {
   // console.log("ticketData:", ticketData.ticketData);
   // console.log("DEFAULT_CARDS:", DEFAULT_CARDS);
   // // console.log("DEFAULT_TICKET:", DEFAULT_TICKET);
-  ticketData.ticketData.tasks = ticketData.ticketData.tasks.map((task) => ({
-    ...task,
-    id: task.id.toString(),
-  }));
+
+  // ticketData.ticketData.tasks = ticketData.ticketData.tasks.map((task) => ({
+  //   ...task,
+  //   id: task.id.toString(),
+  // }));
 
   const [cards, setCards] = useState(ticketData.ticketData.tasks);
   const [ticket, setTicket] = useState(ticketData.ticketData);
@@ -151,8 +152,7 @@ const Status = ({
   };
 
   const handleDragEnd = (e) => {
-    const cardId = e.dataTransfer.getData("cardId");
-
+    const cardId = +e.dataTransfer.getData("cardId");
     setActive(false);
     clearHighlights();
 

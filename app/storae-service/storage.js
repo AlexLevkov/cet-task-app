@@ -1,3 +1,17 @@
+export const getItems = async (db, filters) => {
+  try {
+    const data = await fetch("/api/" + db, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    const res = await data.json();
+    console.log("res:", res);
+    return res;
+  } catch (error) {
+    console.log("error in storage:", error);
+  }
+};
+
 export const getItem = async (index, db) => {
   try {
     const data = await fetch("/api/" + db + "/" + index, {
