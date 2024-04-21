@@ -2,17 +2,17 @@
 import React, { useEffect, useState } from "react";
 import { updateItem } from "@/app/storae-service/storage";
 
-const TaskModal = ({ taskToEdit, updateTask, onClose }) => {
+const TaskModal = ({ taskToEdit, updateTask, onClose, refetchTickets }) => {
   const [task, setTask] = useState({
     title: "",
     description: "",
     owner: "",
-    status: "new", // default status
+    status: "new",
   });
 
-  useEffect(() => {
-    setTask(taskToEdit);
-  }, []);
+  // useEffect(() => {
+  //   setTask(taskToEdit);
+  // }, []);
 
   useEffect(() => {
     setTask(taskToEdit);
@@ -25,18 +25,14 @@ const TaskModal = ({ taskToEdit, updateTask, onClose }) => {
 
   const submitTask = async (e) => {
     e.preventDefault();
-    console.log("task:", task);
-    // Here you would add the logic to send the task to your backend or API
   };
 
   const updateTaskDb = async (e) => {
     console.log("updateTaskDb");
     e.preventDefault();
-    // console.log("taskToEdit:", taskToEdit);
-    // console.log("task:", task);
     await updateItem(task, "tasks");
     onClose();
-    window.location.reload();
+    refetchTickets();
   };
 
   return (
@@ -49,7 +45,6 @@ const TaskModal = ({ taskToEdit, updateTask, onClose }) => {
           Title
         </label>
         <input
-          // className="mt-1 block w-full px-3 py-2 bg-grey border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
           className="bg-neutral-700 text-neutral-50 p-1 rounded block w-full"
           type="text"
           name="title"

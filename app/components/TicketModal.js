@@ -6,9 +6,8 @@ import {
   getItem,
   updateItem,
 } from "@/app/storae-service/storage.js";
-import { supabase } from "@/utils/supabaseClient";
 
-const TicketModal = ({ onClose, ticketToEdit }) => {
+const TicketModal = ({ onClose, ticketToEdit, refetchTickets }) => {
   const [ticket, setTicket] = useState({
     title: "",
     description: "",
@@ -24,38 +23,7 @@ const TicketModal = ({ onClose, ticketToEdit }) => {
     }
   }, [ticketToEdit]);
 
-  const demoTasks = [
-    {
-      title: "Task1",
-      description: "",
-      owner: "",
-      status: "new",
-      ticket_id: null,
-    },
-    {
-      title: "Task2",
-      description: "",
-      owner: "",
-      status: "new",
-      ticket_id: null,
-    },
-    {
-      title: "Task3",
-      description: "",
-      owner: "",
-      status: "new",
-      ticket_id: null,
-    },
-    {
-      title: "Task4",
-      description: "",
-      owner: "",
-      status: "new",
-      ticket_id: null,
-    },
-  ];
-
-  const [tasks, setTasks] = useState([]); //[{ title: "task title example" }]);
+  const [tasks, setTasks] = useState([]);
 
   const [taskToEdit, setTaskToEdit] = useState("");
 
@@ -75,29 +43,24 @@ const TicketModal = ({ onClose, ticketToEdit }) => {
       !ticket.priority
     ) {
       alert("Please fill in all fields");
-      return; // Stop the function if any field is empty
+      return;
     }
-    // e.preventDefault();
-    console.log("ticket:", ticket);
+
     const res = await fetch("/api/tickets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(ticket),
     });
     const ticketId = await res.json();
-    // console.log("ticketId:", ticketId);
-    // const tasksToFetch = tasks.map(({ local_id, ...rest }) => ({
-    //   ...rest,
-    //   ticket_id: ticketId,
-    // }));
+
     const tasksToFetch = [
       { ticket_id: ticketId, title: "new task", status: "new" },
     ];
 
-    console.log("tasksToFetch:", tasksToFetch);
     submitTask(tasksToFetch);
     onClose();
-    window.location.reload();
+
+    refetchTickets();
   };
 
   const submitTask = (tasks) => {
@@ -114,24 +77,7 @@ const TicketModal = ({ onClose, ticketToEdit }) => {
     });
   };
 
-  const addTask = () => {
-    const local_id = tasks.length;
-
-    const newTask = {
-      title: "New Task",
-      description: "",
-      owner: "",
-      status: "new",
-      ticket_id: null,
-      local_id,
-    };
-    setTasks((prev) => [...prev, newTask]);
-  };
-
   const editTask = (id) => {
-    console.log("id:", id);
-    console.log("editTask");
-    console.log("tasks[id]:", tasks[id]);
     setTaskToEdit(tasks[id]);
   };
 
@@ -142,44 +88,30 @@ const TicketModal = ({ onClose, ticketToEdit }) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) => {
         if (task.local_id === updatedTask.local_id) {
-          return { ...task, ...updatedTask }; // This merges the updated fields with the existing task
+          return { ...task, ...updatedTask };
         }
-        return task; // Return unmodified task for those that do not match the condition
+        return task;
       })
     );
   };
 
   const deleteTicket = async () => {
-    // console.log("deleteTicket");
-    console.log("ticket.id:", ticket.id);
-    await deleteAllTasks(ticket.id);
-    await deleteItem(ticket.id, "tickets");
-    window.location.reload();
-  };
-
-  const deleteAllTasks = async (ticketId) => {
-    const { data, error } = await supabase
-      .from("Tasks")
-      .select("id")
-      .eq("ticket_id", ticketId);
-    // console.log("data:", data);
-    data.forEach((id) => {
-      deleteItem(id.id, "tasks");
-    });
+    const fIndex = { ticketid: ticket.id };
+    await deleteItem(null, "tasks", fIndex); // delete tasks
+    await deleteItem(ticket.id, "tickets"); // delete the ticket
+    onClose();
+    refetchTickets();
   };
 
   const updateTicket = async () => {
-    // console.log("updateTicket");s
-    // console.log("ticket:", ticket);
     await updateItem(ticket, "tickets");
     onClose();
-    window.location.reload();
+    refetchTickets();
   };
 
   return (
     <div className="ticket-modal max-h-100">
-      {/* {JSON.stringify(ticket)} */}
-      <form className="ticket-modal-form bg-neutral-900 text-neutral-50 my-3 ">
+      <form className="ticket-modal-form text-neutral-50 my-3 ">
         <label>Title</label>
         <input
           required
@@ -227,14 +159,6 @@ const TicketModal = ({ onClose, ticketToEdit }) => {
           <option value="committed">Committed</option>
           <option value="done">Done</option>
         </select>
-        {/* <input
-          required
-          type="text"
-          name="status"
-          value={ticket.status}
-          onChange={handleChange}
-          className="bg-neutral-700 text-neutral-50 p-1 rounded block w-1/2"
-        /> */}
         <label>Priority</label>
         <input
           required
@@ -255,12 +179,6 @@ const TicketModal = ({ onClose, ticketToEdit }) => {
         )}
       </form>
       <div className="task-container">
-        {/* <button
-          className="my-5 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          onClick={() => addTask()}
-        >
-          Add Task
-        </button> */}
         {tasks &&
           tasks.map((task, index) => (
             <div

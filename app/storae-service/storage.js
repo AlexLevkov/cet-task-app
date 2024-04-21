@@ -1,11 +1,11 @@
 export const getItems = async (db, filters) => {
   try {
-    const data = await fetch("/api/" + db, {
+    const params = new URLSearchParams(filters).toString();
+    const data = await fetch("/api/" + db + "?" + params, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
     const res = await data.json();
-    console.log("res:", res);
     return res;
   } catch (error) {
     console.log("error in storage:", error);
@@ -32,16 +32,15 @@ export const updateItem = async (item, db) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(item),
     });
-    // console.log("res updateItem:", res);
   } catch (error) {
     console.log("error:", error);
   }
 };
 
-export const deleteItem = async (index, db) => {
-  console.log("index in storage:", index);
+export const deleteItem = async (index, db, fIndex) => {
+  const params = new URLSearchParams(fIndex).toString();
   try {
-    const data = await fetch("/api/" + db + "/" + index, {
+    const data = await fetch("/api/" + db + "/" + index + "?" + params, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });

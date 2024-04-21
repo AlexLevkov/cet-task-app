@@ -1,58 +1,48 @@
 "use client";
 import React, { useState, useEffect } from "react";
+
+// animation
 import { FiPlus, FiTrash } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
-import data from "@/demo_data/demo.json";
+import { IoIosSettings } from "react-icons/io";
+
+// cmps
 import Modal from "@/app/components/Modal";
+
+// services
 import { updateItem, deleteItem } from "@/app/storae-service/storage";
 
-export const CustomKanban = (ticketData) => {
-  // console.log("ticket:", ticketData);
-  // console.log("data:", data);
-
+export const CustomKanban = ({ ticketData, refetchTickets }) => {
   return (
     <div className="w-full bg-neutral-900 text-neutral-50">
-      {/* <h1>List</h1> */}
-      <Board ticketData={ticketData} />
+      <Board ticketData={ticketData} refetchTickets={refetchTickets} />
     </div>
   );
 };
 
-const Board = ({ ticketData }) => {
-  // console.log("ticketData:", ticketData.ticketData);
-  // console.log("DEFAULT_CARDS:", DEFAULT_CARDS);
-  // // console.log("DEFAULT_TICKET:", DEFAULT_TICKET);
-
-  // ticketData.ticketData.tasks = ticketData.ticketData.tasks.map((task) => ({
-  //   ...task,
-  //   id: task.id.toString(),
-  // }));
-
-  const [cards, setCards] = useState(ticketData.ticketData.tasks);
-  const [ticket, setTicket] = useState(ticketData.ticketData);
-
-  const [hasChecked, setHasChecked] = useState(false);
+const Board = ({ ticketData, refetchTickets }) => {
+  const [cards, setCards] = useState(ticketData.tasks);
+  const [ticket, setTicket] = useState(ticketData);
 
   const [isOpen, setIsOpen] = useState(false);
   const [isTicket, setIsTicket] = useState(false);
   const [modalIndex, setModalIndex] = useState("");
-  const [modalDb, setModalDb] = useState("");
 
   useEffect(() => {
-    // console.log("cards changed");
-    // console.log("cards:", cards);
+    setCards((pv) => ticketData.tasks);
+    setTicket((pv) => ticketData);
+  }, [ticketData]);
+
+  useEffect(() => {
     const areAllDone = cards.every((card) => card.status === "done");
-    // console.log(areAllDone);
     if (areAllDone) {
-      // console.log("ticket.ticket.id:", ticket);/
       setTicket((pv) => ({
         ...pv,
         status: "done",
       }));
       updateItem(ticket, "tickets");
     } else {
-      // console.log("ticket.ticket.id:", ticket);
       setTicket((pv) => ({
         ...pv,
         status: "approved",
@@ -64,7 +54,6 @@ const Board = ({ ticketData }) => {
   }, [cards]);
 
   const toggleModal = (index, db, isTicket, ticket) => {
-    // console.log("index:", index);
     setIsTicket((pv) => isTicket);
     setModalIndex((pv) => index);
     setIsOpen(!isOpen);
@@ -79,24 +68,18 @@ const Board = ({ ticketData }) => {
         onClose={toggleModal}
         index={modalIndex}
         db="tasks"
+        refetchTickets={refetchTickets}
       />
       <div className="flex justify-center w-full gap-3 p-12 border-t border-gray-300">
         <TicketColumn
           title="Ticket"
           ticket={ticket}
           status="ticket"
-          headingColor="text-neutral-500"
+          headingColor="text-neutral-100"
           cards={cards}
           setCards={setCards}
           toggleModal={toggleModal}
         />
-        {/* <Status
-          title="Backlog"
-          status="backlog"
-          headingColor="text-neutral-500"
-          cards={cards}
-          setCards={setCards}
-        /> */}
         <Status
           title="TODO"
           status="new"
@@ -105,6 +88,7 @@ const Board = ({ ticketData }) => {
           setCards={setCards}
           toggleModal={toggleModal}
           ticketData={ticketData}
+          refetchTickets={refetchTickets}
         />
         <Status
           title="In progress"
@@ -114,6 +98,7 @@ const Board = ({ ticketData }) => {
           setCards={setCards}
           toggleModal={toggleModal}
           ticketData={ticketData}
+          refetchTickets={refetchTickets}
         />
         <Status
           title="Done"
@@ -123,15 +108,10 @@ const Board = ({ ticketData }) => {
           setCards={setCards}
           toggleModal={toggleModal}
           ticketData={ticketData}
+          refetchTickets={refetchTickets}
         />
-        <BurnBarrel setCards={setCards} />
+        <BurnBarrel setCards={setCards} refetchTickets={refetchTickets} />
       </div>
-      {/* <h1 style={{ border: "1px solid white" }}>TICKET DEMO</h1>
-      <pre>{JSON.stringify(ticket, null, 2)}</pre>
-      <h1 style={{ border: "1px solid white" }}>CARD DEMO</h1>
-      <pre>{JSON.stringify(cards, null, 2)}</pre>
-      <h1 style={{ border: "1px solid white" }}>RAW DEMO DATA</h1>
-      <pre>{JSON.stringify(data, null, 2)}</pre> */}
     </>
   );
 };
@@ -144,6 +124,7 @@ const Status = ({
   setCards,
   toggleModal,
   ticketData,
+  refetchTickets,
 }) => {
   const [active, setActive] = useState(false);
 
@@ -244,7 +225,6 @@ const Status = ({
   };
 
   const filteredCards = cards.filter((c) => c.status === status);
-
   return (
     <div className="w-56 shrink-0">
       <div className="mb-3 flex items-center justify-between">
@@ -272,7 +252,12 @@ const Status = ({
           );
         })}
         <DropIndicator beforeId={null} status={status} />
-        <AddCard status={status} setCards={setCards} ticketData={ticketData} />
+        <AddCard
+          status={status}
+          setCards={setCards}
+          ticketData={ticketData}
+          refetchTickets={refetchTickets}
+        />
       </div>
     </div>
   );
@@ -281,16 +266,16 @@ const Status = ({
 const TicketColumn = ({ title, headingColor, ticket, toggleModal }) => {
   return (
     <div className="w-56 shrink-0">
-      <div className="mb-3 flex items-center justify-between">
-        <h3
-          className={`font-medium ${headingColor} cursor-pointer`}
-          onClick={() => {
-            // console.log("ticket:", ticket);
-            toggleModal(ticket.id, "tickets", true, ticket);
-          }}
-        >
-          {title}
+      <div
+        className="mb-3 flex items-center"
+        onClick={() => {
+          toggleModal(ticket.id, "tickets", true, ticket);
+        }}
+      >
+        <h3 className={`font-medium ${headingColor} cursor-pointer`}>
+          <p>{title}</p>
         </h3>
+        <IoIosSettings className="settings-icon mx-3" />
       </div>
       <p className="text-m text-neutral-100 mt-3">{ticket.title}</p>
       <p className="text-m text-neutral-100 mt-3">{ticket.status}</p>
@@ -317,17 +302,23 @@ const Card = ({
         layoutId={id}
         draggable="true"
         onDragStart={(e) => handleDragStart(e, { title, id, status })}
-        className="cursor-grab rounded border border-neutral-700 bg-neutral-800 p-3 active:cursor-grabbing"
+        className="flex justify-between cursor-grab rounded border border-neutral-700 bg-neutral-800 p-3 active:cursor-grabbing"
       >
         <p
           className="text-sm text-neutral-100"
           onDoubleClick={() => {
-            // console.log("id:", id);
+            console.log("id:", id);
             toggleModal(id, "tasks");
           }}
         >
           {title}
         </p>
+        <IoIosSettings
+          className="settings-icon"
+          onClick={() => {
+            toggleModal(id, "tasks");
+          }}
+        />
       </motion.div>
     </>
   );
@@ -343,7 +334,7 @@ const DropIndicator = ({ beforeId, status }) => {
   );
 };
 
-const BurnBarrel = ({ setCards }) => {
+const BurnBarrel = ({ setCards, refetchTickets }) => {
   const [active, setActive] = useState(false);
 
   const handleDragOver = (e) => {
@@ -357,11 +348,8 @@ const BurnBarrel = ({ setCards }) => {
 
   const handleDragEnd = (e) => {
     const cardId = e.dataTransfer.getData("cardId");
-
-    // deleteTask
     deleteItem(cardId, "tasks");
-
-    setCards((pv) => pv.filter((c) => c.id !== cardId));
+    setCards((pv) => pv.filter((c) => c.id !== +cardId));
 
     setActive(false);
   };
@@ -382,11 +370,11 @@ const BurnBarrel = ({ setCards }) => {
   );
 };
 
-const AddCard = ({ status, setCards, ticketData }) => {
+const AddCard = ({ status, setCards, ticketData, refetchTickets }) => {
   const [text, setText] = useState("");
   const [adding, setAdding] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!text.trim().length) return;
@@ -395,20 +383,22 @@ const AddCard = ({ status, setCards, ticketData }) => {
       status,
       title: text.trim(),
       // id: Math.random().toString(),
-      ticket_id: ticketData.ticketData.id,
+      ticket_id: ticketData.id,
     };
 
-    fetch("/api/tasks", {
+    const res = await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newCard),
     });
 
+    const newTask = await res.json();
+    console.log("newTask:", newTask);
+
     setCards((pv) => [...pv, newCard]);
 
     setAdding(false);
-
-    window.location.reload();
+    refetchTickets();
   };
 
   return (
@@ -450,13 +440,5 @@ const AddCard = ({ status, setCards, ticketData }) => {
     </>
   );
 };
-
-const DEFAULT_CARDS = [
-  ...data.tasks,
-  // BACKLOG
-  { title: "Look into render bug in dashboard", status: "backlog", id: "100" },
-];
-
-const DEFAULT_TICKET = data;
 
 export default CustomKanban;

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Modal from "./Modal";
 
-const AddTicket = () => {
+const AddTicket = ({ refetchTickets }) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {
     setIsOpen(!isOpen);
@@ -20,7 +20,12 @@ const AddTicket = () => {
           Add Ticket
         </button>
       </nav>
-      <Modal isOpen={isOpen} onClose={toggleModal} isTicket={true} />
+      <Modal
+        isOpen={isOpen}
+        onClose={toggleModal}
+        isTicket={true}
+        refetchTickets={refetchTickets}
+      />
     </div>
   );
 };

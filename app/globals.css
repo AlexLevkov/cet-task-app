@@ -9,14 +9,15 @@ body{
   color: white !important;
 }
 
-button{
-  margin: 5px;
-  padding: 5px;
+.close-btn{
+  position: absolute;
+  right: 10px;
 }
 
 .btn-container{
   display: flex;
-  justify-content: end;
+  justify-content: center;
+  position: relative;
 }
 
 .ticket-modal-form{
@@ -54,4 +55,24 @@ label{
   margin: 10px;
   display: flex;
   gap: 20px;
+}
+
+.settings-icon{
+  color: #da24f3;
+  /* #8446ff */
+  font-size: 22px;
+}
+
+.settings-icon:hover{
+  cursor: pointer;
+  animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+      transform: rotate(0deg);
+  }
+  to {
+      transform: rotate(360deg);
+  }
 }

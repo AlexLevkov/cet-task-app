@@ -5,10 +5,18 @@ import TicketModal from "./TicketModal";
 import data from "@/demo_data/demo";
 import React, { useState, useEffect } from "react";
 import { getItem } from "@/app/storae-service/storage";
+import Loader from "./Loader";
+import { IoMdClose } from "react-icons/io";
 
-const Modal = ({ isOpen, onClose, index, db, isTicket, ticket }) => {
-  // console.log("data:", data.tasks[0]);
-
+const Modal = ({
+  isOpen,
+  onClose,
+  index,
+  db,
+  isTicket,
+  ticket,
+  refetchTickets,
+}) => {
   const [taskToEdit, setTaskToEdit] = useState("");
   const [ticketToEdit, setTicketToEdit] = useState("");
 
@@ -21,10 +29,7 @@ const Modal = ({ isOpen, onClose, index, db, isTicket, ticket }) => {
 
     if (index && isTicket) {
       getItem(index, "tickets").then((item) => {
-        console.log("index:", index);
-        console.log("item:", item[0]);
         if (item) setTicketToEdit(item[0]);
-        // if (item) setTaskToEdit(item[0]);
       });
     }
 
@@ -51,23 +56,32 @@ const Modal = ({ isOpen, onClose, index, db, isTicket, ticket }) => {
             initial={{ scale: 0.5 }}
             animate={{ scale: 1.0 }}
             exit={{ scale: 0 }}
-            className=" modal w-1/2 p-6 rounded-lg shadow-lg" // Added bg-white for white background
-            onClick={(e) => e.stopPropagation()} // Stop click events from bubbling to the parent
+            className=" modal w-1/2 p-6 rounded-lg shadow-lg"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="btn-container">
-              <button className="relative text-color-white" onClick={onClose}>
-                X
+            <div className="btn-container flex justify-between">
+              <div>{!isTicket && !taskToEdit && <Loader />}</div>
+              <button
+                className="close-btn relative text-color-white"
+                onClick={onClose}
+              >
+                <IoMdClose />
               </button>
             </div>
             {taskToEdit && (
               <TaskModal
+                refetchTickets={refetchTickets}
                 taskToEdit={taskToEdit}
                 isOpen={isOpen}
                 onClose={onClose}
               />
             )}
             {isTicket && (
-              <TicketModal onClose={onClose} ticketToEdit={ticketToEdit} />
+              <TicketModal
+                refetchTickets={refetchTickets}
+                onClose={onClose}
+                ticketToEdit={ticketToEdit}
+              />
             )}
           </motion.div>
         </motion.div>
